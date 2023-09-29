@@ -1,9 +1,12 @@
 <script setup lang="ts">
 const props = defineProps<{ value: String }>()
+
+let colors = ["red", "blue", "green", "yellow"]
+
 </script>
 
 <template>
-  <div id="outer">
+  <div id="outer" :style="{background: colors[Math.round(Math.random() * (colors.length - 1))]}">
     {{ props.value }}
   </div>
 </template>
@@ -15,8 +18,6 @@ const props = defineProps<{ value: String }>()
 
   height: 100px;
   width: 100px;
-
-  background: darkslategray;
 
   display: flex;
 
