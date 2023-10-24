@@ -7,27 +7,28 @@ const SLOTS_PER_REEL = 16;
 let spinner1 = ref<HTMLElement | null>(null);
 let spinner2 = ref<HTMLElement | null>(null);
 let spinner3 = ref<HTMLElement | null>(null);
+let spinner4 = ref<HTMLElement | null>(null);
+let spinner5 = ref<HTMLElement | null>(null);
 
 let panelWidth = 100;
 const REEL_RADIUS = Math.round((panelWidth / 2) / Math.tan(Math.PI / SLOTS_PER_REEL));
 const slotAngle = 360 / SLOTS_PER_REEL;
 
-let wheel = new Wheel(SLOTS_PER_REEL, [spinner1, spinner2, spinner3]);
+let wheel = new Wheel(SLOTS_PER_REEL, [spinner1, spinner2, spinner3, spinner4, spinner5]);
 
 let state = false;
 
 function spin() {
   wheel.spin(state)
 
+  console.log(wheel.getValues(state, [1, 1, 1, 1, 1]));
+
   state = !state;
 }
 </script>
 
 <template>
-
-  <button @click="spin()">button</button>
-
-  <div id="wheel">
+  <div id="wheel" @click="spin()">
     <div class="slots" ref="spinner1">
       <template v-for="(val,index) in wheel.lines[0].data">
         <div class="slot"
@@ -52,6 +53,22 @@ function spin() {
         </div>
       </template>
     </div>
+    <div class="slots" ref="spinner4">
+      <template v-for="(val,index) in wheel.lines[3].data">
+        <div class="slot"
+             :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
+          <SlotEntry :value="val"/>
+        </div>
+      </template>
+    </div>
+    <div class="slots" ref="spinner5">
+      <template v-for="(val,index) in wheel.lines[4].data">
+        <div class="slot"
+             :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
+          <SlotEntry :value="val"/>
+        </div>
+      </template>
+    </div>
   </div>
 
 </template>
@@ -60,8 +77,13 @@ function spin() {
 
 #wheel {
 
-  width: 100vw;
-  height: 100vh;
+  border: gray 40px solid;
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  width: 500px;
+  height: 50vh;
 
   display: flex;
 

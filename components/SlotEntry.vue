@@ -1,13 +1,33 @@
 <script setup lang="ts">
-const props = defineProps<{ value: String }>()
+import {SlotSymbol} from "~/utils/SlotSymbol";
 
-let colors = ["red", "blue", "green", "yellow"]
+const props = defineProps<{ value: SlotSymbol }>()
 
 </script>
 
 <template>
-  <div id="outer" :style="{background: colors[Math.round(Math.random() * (colors.length - 1))]}">
-    {{ props.value }}
+  <div id="outer">
+    <template v-if="props.value == SlotSymbol.BAR">
+      <img src="../public/bar.png" alt="bar">
+    </template>
+    <template v-if="props.value == SlotSymbol.BELL">
+      <img src="../public/bell.png" alt="bell">
+    </template>
+    <template v-if="props.value == SlotSymbol.CHERRY">
+      <img src="../public/cherry.png" alt="cherry">
+    </template>
+    <template v-if="props.value == SlotSymbol.DIAMOND">
+      <img src="../public/diamond.png" alt="diamond">
+    </template>
+    <template v-if="props.value == SlotSymbol.LEMON">
+      <img src="../public/lemon.png" alt="lemon">
+    </template>
+    <template v-if="props.value == SlotSymbol.ORANGE">
+      <img src="../public/orange.png" alt="orange">
+    </template>
+    <template v-if="props.value == SlotSymbol.SEVEN">
+      <img src="../public/seven.png" alt="seven">
+    </template>
   </div>
 </template>
 
@@ -24,5 +44,14 @@ let colors = ["red", "blue", "green", "yellow"]
   justify-content: center;
   align-items: center;
 
+  background: lightgray;
+
+  img {
+    height: 100%;
+    width: 100%;
+
+    padding: 9%;
+    box-sizing: border-box;
+  }
 }
 </style>
