@@ -40,6 +40,10 @@ export class SlotLine {
   }
 
   public getValue(front: boolean, height: number): SlotSymbol {
+    return this.data[this.getIndexFromHeight(front, height)];
+  }
+
+  public getIndexFromHeight(front: boolean, height: number): number {
     let min
     let max;
 
@@ -53,7 +57,7 @@ export class SlotLine {
 
     let center = (min + max) / 2
 
-    return this.data[center + height];
+    return center + height;
   }
 
   get data(): UnwrapNestedRefs<SlotSymbol[]> {

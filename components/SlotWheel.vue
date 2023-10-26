@@ -10,6 +10,10 @@ let spinner3 = ref<HTMLElement | null>(null);
 let spinner4 = ref<HTMLElement | null>(null);
 let spinner5 = ref<HTMLElement | null>(null);
 
+let selected = ref([-1, -1, -1, -1, -1]);
+
+let lanes = [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [-1, -1, -1, -1, -1], [1, 1, 0, -1, -1], [-1, -1, 0, 1, 1], [1, 0, 0, 0, 1], [-1, 0, 0, 0, -1], [0, 1, 1, 1, 0], [0, -1, -1, -1, 0], [1, 0, 0, 0, -1], [-1, 0, 0, 0, 1], [0, 0, 1, 1, 1], [0, 0, -1, -1, -1], [-1, 0, -1, 0, -1], [0, -1, 0, -1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, -1, 0, 1], [-1, 0, 1, 0, -1]];
+
 let panelWidth = 100;
 const REEL_RADIUS = Math.round((panelWidth / 2) / Math.tan(Math.PI / SLOTS_PER_REEL));
 const slotAngle = 360 / SLOTS_PER_REEL;
@@ -17,13 +21,47 @@ const slotAngle = 360 / SLOTS_PER_REEL;
 let wheel = new Wheel(SLOTS_PER_REEL, [spinner1, spinner2, spinner3, spinner4, spinner5]);
 
 let state = false;
+let running = false;
 
-function spin() {
+async function spin() {
+
+  if (running)
+    return;
+
+  running = true;
   wheel.spin(state)
 
-  console.log(wheel.getValues(state, [1, 1, 1, 1, 1]));
+  await sleep(5000 + 200 * selected.value.length);
 
+  for (let lane of lanes) {
+    selected.value = [-1, -1, -1, -1, -1];
+
+    let values = wheel.getValues(state, lane);
+
+    let start_value = values[0];
+
+    let count = 0;
+
+    for (let i = 0; i < values.length; i++) {
+      if (start_value == values[i]) {
+        selected.value[i] = wheel.getIndexFromHeight(state, lane[i]);
+        count++;
+      } else {
+        break
+      }
+    }
+
+    if (count >= 3)
+      await sleep(1000);
+  }
+
+  selected.value = [-1, -1, -1, -1, -1];
   state = !state;
+  running = false;
+}
+
+function sleep(milliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 </script>
 
@@ -33,7 +71,7 @@ function spin() {
       <template v-for="(val,index) in wheel.lines[0].data">
         <div class="slot"
              :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val"/>
+          <SlotEntry :value="val" :selected="selected[0] == index"/>
         </div>
       </template>
     </div>
@@ -41,7 +79,7 @@ function spin() {
       <template v-for="(val,index) in wheel.lines[1].data">
         <div class="slot"
              :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val"/>
+          <SlotEntry :value="val" :selected="selected[1] == index"/>
         </div>
       </template>
     </div>
@@ -49,7 +87,7 @@ function spin() {
       <template v-for="(val,index) in wheel.lines[2].data">
         <div class="slot"
              :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val"/>
+          <SlotEntry :value="val" :selected="selected[2] == index"/>
         </div>
       </template>
     </div>
@@ -57,7 +95,7 @@ function spin() {
       <template v-for="(val,index) in wheel.lines[3].data">
         <div class="slot"
              :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val"/>
+          <SlotEntry :value="val" :selected="selected[3] == index"/>
         </div>
       </template>
     </div>
@@ -65,7 +103,7 @@ function spin() {
       <template v-for="(val,index) in wheel.lines[4].data">
         <div class="slot"
              :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val"/>
+          <SlotEntry :value="val" :selected="selected[4] == index"/>
         </div>
       </template>
     </div>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {SlotSymbol} from "~/utils/SlotSymbol";
 
-const props = defineProps<{ value: SlotSymbol }>()
+const props = defineProps<{ value: SlotSymbol, selected: boolean }>()
 
 </script>
 
 <template>
-  <div id="outer">
+  <div id="outer" :class="{'highlight': selected}">
     <template v-if="props.value == SlotSymbol.BAR">
       <img src="../public/bar.png" alt="bar">
     </template>
@@ -52,6 +52,10 @@ const props = defineProps<{ value: SlotSymbol }>()
 
     padding: 9%;
     box-sizing: border-box;
+  }
+
+  &.highlight {
+    background: brown;
   }
 }
 </style>

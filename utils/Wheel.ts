@@ -53,6 +53,10 @@ export class Wheel {
     return symbols
   }
 
+  public getIndexFromHeight(front: boolean, height: number): number {
+    return this.lines[0].getIndexFromHeight(front, height);
+  }
+
   get lines(): SlotLine[] {
     return this._lines;
   }
