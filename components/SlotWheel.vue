@@ -25,10 +25,17 @@ let running = false;
 
 let winnings = ref(0);
 
+let currentMoney = ref(1000);
+let bet = ref(0)
+
 async function spin() {
 
   if (running)
     return;
+
+  currentMoney.value -= bet.value;
+
+  let currentBet = bet.value;
 
   state = !state;
   running = true;
@@ -44,15 +51,18 @@ async function spin() {
 
     switch (lane.length) {
       case 3: {
-        winnings.value += 3;
+        winnings.value += currentBet * 2;
+        currentMoney.value += currentBet * 2;
         break;
       }
       case 4: {
-        winnings.value += 25;
+        winnings.value += currentBet * 20;
+        currentMoney.value += currentBet * 20;
         break;
       }
       case 5: {
-        winnings.value += 100;
+        winnings.value += currentBet * 100;
+        currentMoney.value += currentBet * 100;
       }
     }
 
@@ -144,6 +154,14 @@ function getSelectionState(line: number, index: number): Selection {
             <SlotEntry :value="val" :selection="getSelectionState(4,index)"/>
           </div>
         </template>
+      </div>
+    </div>
+    <div>
+      <div>
+        current Money: {{ currentMoney }}
+      </div>
+      <div>
+        <input type="number" name="bet" id="bet" v-model="bet">
       </div>
     </div>
   </main>
