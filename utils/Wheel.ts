@@ -2,14 +2,12 @@ import {Ref} from "@vue/reactivity";
 import {SlotLine} from "~/utils/SlotLine";
 import {SlotSymbol} from "~/utils/SlotSymbol";
 import {sleep} from "@antfu/utils";
+import {LANES} from "~/utils/LANES";
 
 export class Wheel {
 
   private htmlRefs: Ref<HTMLElement | null>[];
   private readonly _lines: SlotLine[];
-
-  public static readonly lanes = [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [-1, -1, -1, -1, -1], [1, 1, 0, -1, -1], [-1, -1, 0, 1, 1], [1, 0, 0, 0, 1], [-1, 0, 0, 0, -1], [0, 1, 1, 1, 0], [0, -1, -1, -1, 0], [1, 0, 0, 0, -1], [-1, 0, 0, 0, 1], [0, 0, 1, 1, 1], [0, 0, -1, -1, -1], [-1, 0, -1, 0, -1], [0, -1, 0, -1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, -1, 0, 1], [-1, 0, 1, 0, -1]];
-
 
   constructor(slotsPerWheel: number, htmlRefs: Ref<HTMLElement | null>[]) {
     this.htmlRefs = htmlRefs;
@@ -47,7 +45,7 @@ export class Wheel {
 
     let winningLanes: number[][] = [];
 
-    for (let lane of Wheel.lanes) {
+    for (let lane of LANES) {
       let values = this.getValues(front, lane);
 
       let start_value = values[0];
