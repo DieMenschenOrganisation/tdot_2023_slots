@@ -1,32 +1,33 @@
 <script setup lang="ts">
 import {SlotSymbol} from "~/utils/SlotSymbol";
+import {Selection} from "~/utils/Selection";
 
-const props = defineProps<{ value: SlotSymbol, selected: boolean }>()
+const props = defineProps<{ value: SlotSymbol, selection: Selection }>()
 
 </script>
 
 <template>
-  <div id="outer" :class="{'highlight': selected}">
+  <div id="outer" :class="{'mark': selection == Selection.MARK,'minorMark': selection == Selection.MINOR_MARK}">
     <template v-if="props.value == SlotSymbol.BAR">
-      <img src="../public/bar.png" alt="bar">
+      <img src="/bar.png" alt="bar">
     </template>
     <template v-if="props.value == SlotSymbol.BELL">
-      <img src="../public/bell.png" alt="bell">
+      <img src="/bell.png" alt="bell">
     </template>
     <template v-if="props.value == SlotSymbol.CHERRY">
-      <img src="../public/cherry.png" alt="cherry">
+      <img src="/cherry.png" alt="cherry">
     </template>
     <template v-if="props.value == SlotSymbol.DIAMOND">
-      <img src="../public/diamond.png" alt="diamond">
+      <img src="/diamond.png" alt="diamond">
     </template>
     <template v-if="props.value == SlotSymbol.LEMON">
-      <img src="../public/lemon.png" alt="lemon">
+      <img src="/lemon.png" alt="lemon">
     </template>
     <template v-if="props.value == SlotSymbol.ORANGE">
-      <img src="../public/orange.png" alt="orange">
+      <img src="/orange.png" alt="orange">
     </template>
     <template v-if="props.value == SlotSymbol.SEVEN">
-      <img src="../public/seven.png" alt="seven">
+      <img src="/seven.png" alt="seven">
     </template>
   </div>
 </template>
@@ -54,8 +55,12 @@ const props = defineProps<{ value: SlotSymbol, selected: boolean }>()
     box-sizing: border-box;
   }
 
-  &.highlight {
-    background: brown;
+  &.mark {
+    background: red;
+  }
+
+  &.minorMark {
+    background: gray;
   }
 }
 </style>

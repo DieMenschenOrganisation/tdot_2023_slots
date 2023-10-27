@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import SlotEntry from "~/components/SlotEntry.vue";
 import {Wheel} from "~/utils/Wheel";
+import {sleep} from "@antfu/utils";
+import {Selection} from "~/utils/Selection";
 
 const SLOTS_PER_REEL = 16;
 
@@ -10,9 +12,7 @@ let spinner3 = ref<HTMLElement | null>(null);
 let spinner4 = ref<HTMLElement | null>(null);
 let spinner5 = ref<HTMLElement | null>(null);
 
-let selected = ref([-1, -1, -1, -1, -1]);
-
-let lanes = [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [-1, -1, -1, -1, -1], [1, 1, 0, -1, -1], [-1, -1, 0, 1, 1], [1, 0, 0, 0, 1], [-1, 0, 0, 0, -1], [0, 1, 1, 1, 0], [0, -1, -1, -1, 0], [1, 0, 0, 0, -1], [-1, 0, 0, 0, 1], [0, 0, 1, 1, 1], [0, 0, -1, -1, -1], [-1, 0, -1, 0, -1], [0, -1, 0, -1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, -1, 0, 1], [-1, 0, 1, 0, -1]];
+let selectedIndex = ref([-1, -1, -1, -1, -1]);
 
 let panelWidth = 100;
 const REEL_RADIUS = Math.round((panelWidth / 2) / Math.tan(Math.PI / SLOTS_PER_REEL));
@@ -20,137 +20,190 @@ const slotAngle = 360 / SLOTS_PER_REEL;
 
 let wheel = new Wheel(SLOTS_PER_REEL, [spinner1, spinner2, spinner3, spinner4, spinner5]);
 
-let state = false;
+let state = true;
 let running = false;
+
+let winnings = ref(0);
 
 async function spin() {
 
   if (running)
     return;
 
+  state = !state;
   running = true;
-  wheel.spin(state)
+  winnings.value = 0;
 
-  await sleep(5000 + 200 * selected.value.length);
+  selectedIndex.value = [-1, -1, -1, -1, -1];
 
-  for (let lane of lanes) {
-    selected.value = [-1, -1, -1, -1, -1];
+  let winningLanes = wheel.spin(state)
 
-    let values = wheel.getValues(state, lane);
+  await sleep(5000 + 200 * selectedIndex.value.length);
 
-    let start_value = values[0];
+  for (let lane of winningLanes) {
 
-    let count = 0;
-
-    for (let i = 0; i < values.length; i++) {
-      if (start_value == values[i]) {
-        selected.value[i] = wheel.getIndexFromHeight(state, lane[i]);
-        count++;
-      } else {
-        break
+    switch (lane.length) {
+      case 3: {
+        winnings.value += 3;
+        break;
+      }
+      case 4: {
+        winnings.value += 25;
+        break;
+      }
+      case 5: {
+        winnings.value += 100;
       }
     }
 
-    if (count >= 3)
-      await sleep(1000);
+    for (let i = 0; i < lane.length; i++) {
+      selectedIndex.value[i] = wheel.getIndexFromHeight(state, lane[i]);
+    }
+
+    await sleep(500);
+
+    selectedIndex.value = [-1, -1, -1, -1, -1];
   }
 
-  selected.value = [-1, -1, -1, -1, -1];
-  state = !state;
   running = false;
+
+  outer:
+      while (!running && winningLanes.length > 0) {
+        for (let lane of winningLanes) {
+          if (running) {
+            break outer;
+          }
+
+          for (let i = 0; i < lane.length; i++) {
+            selectedIndex.value[i] = wheel.getIndexFromHeight(state, lane[i]);
+          }
+
+          await sleep(1000);
+
+          selectedIndex.value = [-1, -1, -1, -1, -1];
+        }
+      }
 }
 
-function sleep(milliseconds: number) {
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
+function getSelectionState(line: number, index: number): Selection {
+  if (selectedIndex.value[line] == index) {
+    if (running) {
+      return Selection.MARK
+    } else {
+      return Selection.MINOR_MARK
+    }
+  }
+  return Selection.NONE
 }
 </script>
 
 <template>
-  <div id="wheel" @click="spin()">
-    <div class="slots" ref="spinner1">
-      <template v-for="(val,index) in wheel.lines[0].data">
-        <div class="slot"
-             :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val" :selected="selected[0] == index"/>
-        </div>
-      </template>
+  <main>
+    <h1 id="winnings">
+      <span v-if="winnings > 0">
+        {{ winnings }}
+      </span>
+    </h1>
+    <div id="wheel" @click="spin()">
+      <div class="slots" ref="spinner1">
+        <template v-for="(val,index) in wheel.lines[0].data">
+          <div class="slot"
+               :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
+            <SlotEntry :value="val" :selection="getSelectionState(0,index)"/>
+          </div>
+        </template>
+      </div>
+      <div class="slots" ref="spinner2">
+        <template v-for="(val,index) in wheel.lines[1].data">
+          <div class="slot"
+               :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
+            <SlotEntry :value="val" :selection="getSelectionState(1,index)"/>
+          </div>
+        </template>
+      </div>
+      <div class="slots" ref="spinner3">
+        <template v-for="(val,index) in wheel.lines[2].data">
+          <div class="slot"
+               :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
+            <SlotEntry :value="val" :selection="getSelectionState(2,index)"/>
+          </div>
+        </template>
+      </div>
+      <div class="slots" ref="spinner4">
+        <template v-for="(val,index) in wheel.lines[3].data">
+          <div class="slot"
+               :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
+            <SlotEntry :value="val" :selection="getSelectionState(3,index)"/>
+          </div>
+        </template>
+      </div>
+      <div class="slots" ref="spinner5">
+        <template v-for="(val,index) in wheel.lines[4].data">
+          <div class="slot"
+               :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
+            <SlotEntry :value="val" :selection="getSelectionState(4,index)"/>
+          </div>
+        </template>
+      </div>
     </div>
-    <div class="slots" ref="spinner2">
-      <template v-for="(val,index) in wheel.lines[1].data">
-        <div class="slot"
-             :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val" :selected="selected[1] == index"/>
-        </div>
-      </template>
-    </div>
-    <div class="slots" ref="spinner3">
-      <template v-for="(val,index) in wheel.lines[2].data">
-        <div class="slot"
-             :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val" :selected="selected[2] == index"/>
-        </div>
-      </template>
-    </div>
-    <div class="slots" ref="spinner4">
-      <template v-for="(val,index) in wheel.lines[3].data">
-        <div class="slot"
-             :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val" :selected="selected[3] == index"/>
-        </div>
-      </template>
-    </div>
-    <div class="slots" ref="spinner5">
-      <template v-for="(val,index) in wheel.lines[4].data">
-        <div class="slot"
-             :style="{transform: 'rotateX('+  (slotAngle * index - 90) + 'deg) translateZ(' + (REEL_RADIUS + 5) + 'px)' }">
-          <SlotEntry :value="val" :selected="selected[4] == index"/>
-        </div>
-      </template>
-    </div>
-  </div>
-
+  </main>
 </template>
 
 <style lang="scss" scoped>
 
-#wheel {
+main {
 
-  border: gray 40px solid;
-  border-radius: 20px;
-
-  overflow: hidden;
-
-  width: 500px;
-  height: 50vh;
+  flex-direction: column;
 
   display: flex;
-
   justify-content: center;
   align-items: center;
 
-  .slots {
-    transform-style: preserve-3d;
+  #winnings {
+    color: black;
 
-    position: relative;
+    height: 50px;
+  }
 
-    width: 100px;
+  #wheel {
+    border: gray 40px solid;
+    border-radius: 20px;
 
-    .slot {
-      -webkit-perspective: 200px;
-      -moz-perspective: 200px;
-      perspective: 200px;
+    overflow: hidden;
+
+    width: 500px;
+    height: 350px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    .slots {
+      transform-style: preserve-3d;
+
+      position: relative;
+
+      width: 100px;
+
+      .slot {
+        -webkit-perspective: 200px;
+        -moz-perspective: 200px;
+        perspective: 200px;
 
 
-      -webkit-backface-visibility: hidden;
-      -moz-backface-visibility: hidden;
-      backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        -moz-backface-visibility: hidden;
+        backface-visibility: hidden;
 
-      top: -50px;
+        top: -50px;
 
-      position: absolute;
+        position: absolute;
 
-      box-sizing: border-box;
+        box-sizing: border-box;
+      }
     }
   }
 }
+
 </style>

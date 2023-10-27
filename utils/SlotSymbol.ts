@@ -9,5 +9,5 @@ export enum SlotSymbol {
 }
 
 export function randomSymbol(): SlotSymbol {
-  return Math.floor(Math.random() * 7) as SlotSymbol
+  return Math.min(Math.floor(Math.random() * 14), 6) as SlotSymbol
 }
