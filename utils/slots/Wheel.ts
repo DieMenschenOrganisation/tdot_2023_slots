@@ -1,8 +1,8 @@
 import {Ref} from "@vue/reactivity";
-import {SlotLine} from "~/utils/SlotLine";
-import {SlotSymbol} from "~/utils/SlotSymbol";
+import {SlotLine} from "~/utils/slots/SlotLine";
+import {SlotSymbol} from "~/utils/slots/SlotSymbol";
 import {sleep} from "@antfu/utils";
-import {LANES} from "~/utils/LANES";
+import {Lanes} from "~/utils/slots/lanes";
 
 export class Wheel {
 
@@ -45,7 +45,7 @@ export class Wheel {
 
     let winningLanes: number[][] = [];
 
-    for (let lane of LANES) {
+    for (let lane of Lanes) {
       let values = this.getValues(front, lane);
 
       let start_value = values[0];

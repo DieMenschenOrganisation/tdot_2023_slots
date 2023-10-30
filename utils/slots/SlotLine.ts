@@ -1,5 +1,5 @@
 import {UnwrapNestedRefs} from "vue";
-import {randomSymbol, SlotSymbol} from "~/utils/SlotSymbol";
+import {randomSymbol, SlotSymbol} from "~/utils/slots/SlotSymbol";
 
 export class SlotLine {
   private readonly _data: UnwrapNestedRefs<SlotSymbol[]> = reactive([])

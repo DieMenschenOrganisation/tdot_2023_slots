@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import SlotEntry from "~/components/SlotEntry.vue";
-import {Wheel} from "~/utils/Wheel";
+import {Wheel} from "~/utils/slots/Wheel";
 import {sleep} from "@antfu/utils";
-import {Selection} from "~/utils/Selection";
+import {Selection} from "~/utils/slots/Selection";
 
 const SLOTS_PER_REEL = 16;
 
@@ -51,18 +51,18 @@ async function spin() {
 
     switch (lane.length) {
       case 3: {
-        winnings.value += currentBet * 2;
-        currentMoney.value += currentBet * 2;
+        winnings.value += currentBet;
+        currentMoney.value += currentBet;
         break;
       }
       case 4: {
-        winnings.value += currentBet * 20;
-        currentMoney.value += currentBet * 20;
+        winnings.value += currentBet * 3;
+        currentMoney.value += currentBet * 3;
         break;
       }
       case 5: {
-        winnings.value += currentBet * 100;
-        currentMoney.value += currentBet * 100;
+        winnings.value += currentBet * 10;
+        currentMoney.value += currentBet * 10;
       }
     }
 
@@ -110,9 +110,7 @@ function getSelectionState(line: number, index: number): Selection {
 <template>
   <main>
     <h1 id="winnings">
-      <span v-if="winnings > 0">
-        {{ winnings }}
-      </span>
+      <value-display :value="winnings"></value-display>
     </h1>
     <div id="wheel" @click="spin()">
       <div class="slots" ref="spinner1">

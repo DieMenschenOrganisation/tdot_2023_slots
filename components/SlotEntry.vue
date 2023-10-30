@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {SlotSymbol} from "~/utils/SlotSymbol";
-import {Selection} from "~/utils/Selection";
+import {SlotSymbol} from "~/utils/slots/SlotSymbol";
+import {Selection} from "~/utils/slots/Selection";
 
 const props = defineProps<{ value: SlotSymbol, selection: Selection }>()
 
