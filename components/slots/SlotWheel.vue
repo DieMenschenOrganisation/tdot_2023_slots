@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SlotEntry from "~/components/SlotEntry.vue";
+import SlotEntry from "~/components/slots/SlotEntry.vue";
 import {Wheel} from "~/utils/slots/Wheel";
 import {sleep} from "@antfu/utils";
 import {Selection} from "~/utils/slots/Selection";
