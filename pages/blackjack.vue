@@ -3,98 +3,152 @@
 import {Deck} from "~/utils/blackjack/deck";
 import {BlackJackCard, getMaxValidSum} from "~/utils/blackjack/blackJackCard";
 import Hand from "~/components/blackjack/hand.vue";
-import {breakStatement} from "@babel/types";
 
 let deck = new Deck();
 
-let yourCards = ref<BlackJackCard[]>([])
+let yourCards = ref<BlackJackCard[][]>([[], []])
 let croupierCards = ref<BlackJackCard[]>([])
 
 let running = ref<boolean>(false)
-let yourTurn = ref<boolean>(false)
+let yourTurn = ref<boolean[]>([false, false])
+let firstTurn = ref<boolean>(false)
+let canSplit = computed(args => {
+  let cards = yourCards.value[0];
+
+  if (cards.length != 2 || !firstTurn.value)
+    return false
+
+  return cards[0].value == cards[1].value;
+})
 
 let betValue = ref<number>(0);
 let money = ref<number>(1000);
 
-function next() {
-  yourCards.value.push(deck.getRandomCard());
+async function next(hand: number) {
+  firstTurn.value = false;
 
-  if (getMaxValidSum(yourCards.value) > 21) {
-    loss()
+  yourCards.value[hand].push(deck.getRandomCard());
+
+  if (getMaxValidSum(yourCards.value[hand]) > 21) {
+    await loss(hand)
+    await sleep(2000)
+    reset();
   }
 }
 
-async function loss() {
-  yourTurn.value = false;
+async function loss(hand: number) {
+  yourTurn.value[hand] = false;
   console.log("noop")
-
-  await sleep(2000)
-  reset();
 }
 
-async function win() {
-  yourTurn.value = false;
+async function win(hand: number) {
+  yourTurn.value[hand] = false;
   console.log("easy W")
 
-  if (getMaxValidSum(yourCards.value) == 21 && yourCards.value.length == 2) {
+  if (getMaxValidSum(yourCards.value[hand]) == 21 && yourCards.value[hand].length == 2) {
     money.value += betValue.value * 2.5;
   } else {
     money.value += betValue.value * 2;
   }
-
-  await sleep(2000)
-  reset();
 }
 
 function reset() {
-  yourCards.value = [];
+  if (yourTurn.value[0] || yourTurn.value[1])
+    return
+
+  yourCards.value = [[], []];
   croupierCards.value = [];
 
   running.value = false;
-  yourTurn.value = false;
+  yourTurn.value = [false, false];
+  firstTurn.value = false;
 
   deck = new Deck();
 }
 
-async function check() {
-  yourTurn.value = false;
+async function check(hand: number) {
+  yourTurn.value[hand] = false;
 
-  if (getMaxValidSum(yourCards.value) == 21 && yourCards.value.length == 2) {
-    await win();
+  if (getMaxValidSum(yourCards.value[hand]) == 21 && yourCards.value[hand].length == 2) {
+    await win(hand);
     return
   }
 
+  if (!yourTurn.value[0] && !yourTurn.value[1]) {
+    await runCroupier()
+  }
+}
+
+async function runCroupier() {
   croupierCards.value[1].back = false;
+
+  await sleep(2000)
   while (getMaxValidSum(croupierCards.value) < 16) {
-    await sleep(2000)
     croupierCards.value.push(deck.getRandomCard())
+    await sleep(2000)
   }
 
-  if (getMaxValidSum(croupierCards.value) > 21 || getMaxValidSum(croupierCards.value) < getMaxValidSum(yourCards.value)) {
-    await win()
-  } else {
-    await loss()
+  for (let hand = 0; hand < yourCards.value.length; hand++) {
+
+    if (yourCards.value[hand].length <= 0)
+      continue
+
+    if (getMaxValidSum(croupierCards.value) > 21 || getMaxValidSum(croupierCards.value) < getMaxValidSum(yourCards.value[hand])) {
+      await win(hand)
+    } else {
+      await loss(hand)
+    }
+    await sleep(2000)
   }
+
+  reset();
+}
+
+async function onDouble(hand: number) {
+  firstTurn.value = false;
+  yourTurn.value[hand] = false;
+
+  betValue.value *= 2;
+
+  await next(hand)
+
+  if (running) {
+    await sleep(2000)
+    await check(hand)
+  }
+
+  betValue.value /= 2;
+}
+
+async function onSplit() {
+  firstTurn.value = false;
+
+  let card = yourCards.value[0].splice(1, 1)[0];
+  yourCards.value[1].push(card);
+
+  yourTurn.value[1] = true;
 }
 
 async function onBet() {
   running.value = true;
-  yourTurn.value = true;
+  firstTurn.value = true;
 
   money.value -= betValue.value;
 
-  yourCards.value.push(deck.getRandomCard());
+  yourCards.value[0].push(deck.getRandomCard());
 
   await sleep(500)
   croupierCards.value.push(deck.getRandomCard())
 
   await sleep(500)
-  yourCards.value.push(deck.getRandomCard());
+  yourCards.value[0].push(deck.getRandomCard());
 
   await sleep(500)
   let hiddenCard = deck.getRandomCard();
   hiddenCard.back = true;
   croupierCards.value.push(hiddenCard)
+
+  yourTurn.value[0] = true;
 }
 
 </script>-
@@ -108,15 +162,25 @@ async function onBet() {
       {{ betValue }}
     </div>
     <div id="base">
-      <div id="buttons">
-        <button @click="next" :disabled="!yourTurn">
-          next
-        </button>
-        <button @click="check" :disabled="!yourTurn">
-          check
-        </button>
+      <div v-for="(cards, index) in yourCards">
+        <template v-if="cards.length > 0">
+          <div id="buttons">
+            <button @click="next(index)" :disabled="!yourTurn[index]">
+              next
+            </button>
+            <button @click="check(index)" :disabled="!yourTurn[index]">
+              check
+            </button>
+            <button @click="onDouble(index)" v-if="firstTurn" :disabled="!yourTurn[index]">
+              double
+            </button>
+            <button @click="onSplit" v-if="canSplit" :disabled="!yourTurn[index]">
+              split
+            </button>
+          </div>
+          <hand :cards="cards"></hand>
+        </template>
       </div>
-      <hand :cards="yourCards"></hand>
     </div>
   </div>
   <div v-else id="betting">
