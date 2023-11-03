@@ -3,6 +3,7 @@
 import {Deck} from "~/utils/blackjack/deck";
 import {BlackJackCard, getMaxValidSum} from "~/utils/blackjack/blackJackCard";
 import Hand from "~/components/blackjack/hand.vue";
+import {betMoney, changeMoney, hasEnoughMoney, money} from "~/stores/money";
 
 let deck = new Deck();
 
@@ -21,8 +22,8 @@ let canSplit = computed(args => {
   return cards[0].value == cards[1].value;
 })
 
-let betValue = ref<number>(0);
-let money = ref<number>(1000);
+let wins = ref<boolean[]>([false, false]);
+let losses = ref<boolean[]>([false, false]);
 
 async function next(hand: number) {
   firstTurn.value = false;
@@ -37,19 +38,17 @@ async function next(hand: number) {
 }
 
 async function loss(hand: number) {
+  losses.value[hand] = true;
   yourTurn.value[hand] = false;
-  console.log("noop")
+  await sleep(1000);
 }
 
-async function win(hand: number) {
+async function win(hand: number, winMulti: number) {
+  wins.value[hand] = true;
   yourTurn.value[hand] = false;
-  console.log("easy W")
+  await sleep(1000);
 
-  if (getMaxValidSum(yourCards.value[hand]) == 21 && yourCards.value[hand].length == 2) {
-    money.value += betValue.value * 2.5;
-  } else {
-    money.value += betValue.value * 2;
-  }
+  changeMoney(betMoney.value * winMulti)
 }
 
 function reset() {
@@ -63,6 +62,9 @@ function reset() {
   yourTurn.value = [false, false];
   firstTurn.value = false;
 
+  wins.value = [false, false];
+  losses.value = [false, false];
+
   deck = new Deck();
 }
 
@@ -70,7 +72,8 @@ async function check(hand: number) {
   yourTurn.value[hand] = false;
 
   if (getMaxValidSum(yourCards.value[hand]) == 21 && yourCards.value[hand].length == 2) {
-    await win(hand);
+    await win(hand, 2.5);
+    reset()
     return
   }
 
@@ -94,7 +97,9 @@ async function runCroupier() {
       continue
 
     if (getMaxValidSum(croupierCards.value) > 21 || getMaxValidSum(croupierCards.value) < getMaxValidSum(yourCards.value[hand])) {
-      await win(hand)
+      await win(hand, 2)
+    } else if (getMaxValidSum(croupierCards.value) == getMaxValidSum(yourCards.value[hand])) {
+      await win(hand, 1)
     } else {
       await loss(hand)
     }
@@ -105,10 +110,12 @@ async function runCroupier() {
 }
 
 async function onDouble(hand: number) {
+  changeMoney(-betMoney.value)
+
   firstTurn.value = false;
   yourTurn.value[hand] = false;
 
-  betValue.value *= 2;
+  betMoney.value *= 2;
 
   await next(hand)
 
@@ -117,10 +124,12 @@ async function onDouble(hand: number) {
     await check(hand)
   }
 
-  betValue.value /= 2;
+  betMoney.value /= 2;
 }
 
 async function onSplit() {
+  changeMoney(-betMoney.value)
+
   firstTurn.value = false;
 
   let card = yourCards.value[0].splice(1, 1)[0];
@@ -133,7 +142,7 @@ async function onBet() {
   running.value = true;
   firstTurn.value = true;
 
-  money.value -= betValue.value;
+  changeMoney(-betMoney.value)
 
   yourCards.value[0].push(deck.getRandomCard());
 
@@ -154,44 +163,46 @@ async function onBet() {
 </script>-
 
 <template>
-  <div v-if="running" id="game">
-    <div id="head">
-      <hand :cards="croupierCards"></hand>
-    </div>
-    <div>
-      {{ betValue }}
-    </div>
-    <div id="base">
-      <div v-for="(cards, index) in yourCards">
-        <template v-if="cards.length > 0">
-          <div id="buttons">
-            <button @click="next(index)" :disabled="!yourTurn[index]">
-              next
-            </button>
-            <button @click="check(index)" :disabled="!yourTurn[index]">
-              check
-            </button>
-            <button @click="onDouble(index)" v-if="firstTurn" :disabled="!yourTurn[index]">
-              double
-            </button>
-            <button @click="onSplit" v-if="canSplit" :disabled="!yourTurn[index]">
-              split
-            </button>
-          </div>
-          <hand :cards="cards"></hand>
-        </template>
+  <main>
+    <div v-if="running" id="game">
+      <div id="head">
+        <hand :cards="croupierCards"></hand>
+      </div>
+      <div id="base">
+        <div v-for="(cards, index) in yourCards" id="hand">
+          <template v-if="cards.length > 0">
+            <div id="bet" :class="{loss: losses[index],win: wins[index]}">
+              <jeton :value="betMoney"></jeton>
+            </div>
+            <div id="buttons">
+              <button @click="next(index)" :disabled="!yourTurn[index]">
+                next
+              </button>
+              <button @click="check(index)" :disabled="!yourTurn[index]">
+                check
+              </button>
+              <button @click="onDouble(index)" v-if="firstTurn" :disabled="!yourTurn[index] || !hasEnoughMoney">
+                double
+              </button>
+              <button @click="onSplit" v-if="canSplit" :disabled="!yourTurn[index] || !hasEnoughMoney">
+                split
+              </button>
+            </div>
+            <hand :cards="cards"></hand>
+          </template>
+        </div>
       </div>
     </div>
-  </div>
-  <div v-else id="betting">
-    <button @click="onBet">
-      bet
-    </button>
-    <input type="number" name="betValue" id="betValue" v-model="betValue">
-  </div>
-  <div id="money">
-    money: {{ money }}
-  </div>
+    <div v-else id="betting">
+      <button @click="onBet" :disabled="!hasEnoughMoney">
+        bet
+      </button>
+      <BetSelect></BetSelect>
+    </div>
+    <div id="money">
+      money: {{ money }}
+    </div>
+  </main>
 </template>
 
 <style scoped lang="scss">
@@ -204,7 +215,9 @@ async function onBet() {
   align-items: center;
 
   height: 90vh;
-  margin: 5vh;
+  padding: 5vh;
+
+  overflow: hidden;
 
   #head {
     width: 100%;
@@ -220,20 +233,50 @@ async function onBet() {
 
     display: flex;
 
-    flex-direction: column;
-    align-items: center;
+    overflow: hidden;
 
-    #buttons {
+    justify-content: center;
+
+    #hand {
+
       display: flex;
-      width: 200px;
+      align-items: center;
 
-      justify-content: space-around;
+      flex-direction: column;
+
+      #buttons {
+        display: flex;
+        width: 200px;
+
+        justify-content: space-around;
+      }
+
+      #bet {
+        position: absolute;
+
+        top: calc(50vh - 50px);
+
+        transition: 1s;
+
+        width: 100px;
+
+        z-index: 100;
+
+        &.loss {
+          top: -100px;
+        }
+
+        &.win {
+          top: calc(100vh + 100px);
+        }
+      }
     }
   }
 }
 
 #betting {
   display: flex;
+  flex-direction: column;
 
   height: 100vh;
 
@@ -247,4 +290,14 @@ async function onBet() {
   right: 5px;
 }
 
+main {
+  height: 100vh;
+  width: 100vw;
+
+  background-image: url('/backgroundSlots.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  z-index: -10;
+}
 </style>

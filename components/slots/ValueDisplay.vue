@@ -1,13 +1,12 @@
 <script setup lang="ts">
 let props = defineProps<{ value: number }>()
-let element = ref<HTMLElement | null>(null);
 
 let pop = ref<boolean>(false);
 
 watch(props, () => {
   pop.value = true;
 
-  setInterval(() => {
+  setTimeout(() => {
     pop.value = false
   }, 200)
 })
@@ -15,26 +14,30 @@ watch(props, () => {
 </script>
 
 <template>
-  <div v-if="value > 0" :class="{pop: pop}">
-    {{ value }}
+  <div v-if="value > 0">
+    <div :class="{pop: pop}">
+      {{ value }}
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 
 .pop {
-  color: red;
   animation: 0.2s ease-in-out pop;
 }
 
 @keyframes pop {
   from {
+    color: black;
     scale: 1;
   }
   20% {
-    scale: 2;
+    color: red;
+    scale: 1.5;
   }
   to {
+    color: black;
     scale: 1;
   }
 }

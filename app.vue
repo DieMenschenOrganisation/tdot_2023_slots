@@ -8,4 +8,8 @@
 body {
   margin: 0;
 }
+
+body, html {
+  overflow-y: hidden;
+}
 </style>

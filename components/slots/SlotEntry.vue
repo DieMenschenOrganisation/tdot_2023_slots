@@ -34,18 +34,13 @@ const props = defineProps<{ value: SlotSymbol, selection: Selection }>()
 
 <style lang="scss" scoped>
 #outer {
-
-  border-radius: 20px;
-
-  height: 100px;
-  width: 100px;
+  height: 150px;
+  width: 150px;
 
   display: flex;
 
   justify-content: center;
   align-items: center;
-
-  background: lightgray;
 
   img {
     height: 100%;
@@ -53,14 +48,16 @@ const props = defineProps<{ value: SlotSymbol, selection: Selection }>()
 
     padding: 9%;
     box-sizing: border-box;
+
+    transition: 0.5s ease-in-out;
   }
 
-  &.mark {
-    background: red;
+  &.mark img {
+    filter: drop-shadow(0 0 10px #f00);
   }
 
-  &.minorMark {
-    background: gray;
+  &.minorMark img{
+    filter: drop-shadow(0 0 5px #fff);
   }
 }
 </style>
