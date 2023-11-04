@@ -1,0 +1,39 @@
+button {
+  height: 50px;
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 30px;
+
+  background-color: #2c4557;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  transition: 0.1s ease-in-out;
+
+  margin: 20px;
+  padding: 10px;
+
+  color: #00adb5;
+
+  &:not(:disabled) {
+    &:hover {
+      scale: 1.1;
+      box-shadow: 1px 1px 5px 2px #00000066;
+    }
+  }
+
+  &:disabled {
+    background-color: darken(#2c4557, 8%);
+    color: #1a889c;
+  }
+}
+
+* {
+  //todo find good font...
+  font-family: Open Sans, serif;
+}

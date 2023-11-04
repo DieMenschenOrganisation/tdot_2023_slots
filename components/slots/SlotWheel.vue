@@ -170,13 +170,10 @@ function getSelectionState(line: number, index: number): Selection {
       </div>
     </div>
     <div id="input">
-      <div>
+      <div id="spinButton">
         <button @click="spin" :disabled="!hasEnoughMoney">
           Spin
         </button>
-      </div>
-      <div>
-        current Money: {{ money }}
       </div>
       <div>
         <BetSelect></BetSelect>
@@ -285,7 +282,17 @@ main {
     }
   }
 
+  :deep(button) {
+    background-color: #222831;
+  }
+
   #input {
+
+    #spinButton{
+      display: flex;
+      justify-content: center;
+    }
+
     z-index: 100;
   }
 }

@@ -36,14 +36,14 @@ function onRight() {
 
 <template>
   <div id="main">
-    <button @click="onLeft">
-      -
+    <button @click="onLeft" id="minus">
+      <img src="/minus.svg" alt="minus">
     </button>
     <div id="jeton">
       <jeton :value="betMoney"></jeton>
     </div>
-    <button @click="onRight">
-      +
+    <button @click="onRight" id="plus">
+      <img src="/plus.svg" alt="plus">
     </button>
   </div>
 </template>
@@ -51,9 +51,22 @@ function onRight() {
 <style scoped lang="scss">
 #main {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   #jeton {
+    width: 100px;
+  }
+
+  button {
     width: 50px;
+
+    img {
+      width: 100%;
+      height: 100%;
+
+      filter: drop-shadow(2px 2px 2px #00000066);
+    }
   }
 }
 </style>

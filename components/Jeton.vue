@@ -15,5 +15,6 @@ defineProps<{ value: number }>()
 <style scoped lang="scss">
 img {
   width: 100%;
+  filter: drop-shadow( 5px 5px 3px #00000088);
 }
 </style>
