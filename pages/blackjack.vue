@@ -4,6 +4,7 @@ import {Deck} from "~/utils/blackjack/deck";
 import {BlackJackCard, getMaxValidSum} from "~/utils/blackjack/blackJackCard";
 import Hand from "~/components/blackjack/hand.vue";
 import {betMoney, changeMoney, hasEnoughMoney, money} from "~/stores/money";
+import {onLeave} from "~/utils/Utils";
 
 let deck = new Deck();
 
@@ -24,6 +25,10 @@ let canSplit = computed(args => {
 
 let wins = ref<boolean[]>([false, false]);
 let losses = ref<boolean[]>([false, false]);
+
+//todo
+const route = useRoute();
+console.log(route.query.test);
 
 async function next(hand: number) {
   firstTurn.value = false;
@@ -164,6 +169,14 @@ async function onBet() {
 
 <template>
   <main>
+    <div id="leave">
+      <button @click="onLeave()">
+        Leave
+      </button>
+    </div>
+    <div id="money">
+      money: {{ money }}
+    </div>
     <div v-if="running" id="game">
       <div id="head">
         <hand :cards="croupierCards"></hand>
@@ -199,13 +212,15 @@ async function onBet() {
       </button>
       <BetSelect></BetSelect>
     </div>
-    <div id="money">
-      money: {{ money }}
-    </div>
   </main>
 </template>
 
 <style scoped lang="scss">
+
+#leave {
+  position: absolute;
+}
+
 #game {
 
   display: flex;

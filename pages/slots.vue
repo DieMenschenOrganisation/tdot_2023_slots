@@ -1,21 +1,22 @@
 <script setup lang="ts">
 
 import SlotWheel from "~/components/slots/SlotWheel.vue";
+import {onLeave} from "~/utils/Utils";
 </script>
 
 <template>
-  <nav>
-    <router-link to="/">
-      leave
-    </router-link>
-  </nav>
+  <div id="leave">
+    <button @click="onLeave()">
+      Leave
+    </button>
+  </div>
   <main>
     <slot-wheel/>
   </main>
 </template>
 
 <style scoped lang="scss">
-nav {
+#leave {
   position: absolute;
 }
 
