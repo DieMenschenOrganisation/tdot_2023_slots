@@ -69,7 +69,7 @@ async function spin() {
       selectedIndex.value[i] = wheel.getIndexFromHeight(state, lane[i]);
     }
 
-    await sleep(500);
+    await sleep(1000);
 
     selectedIndex.value = [-1, -1, -1, -1, -1];
   }

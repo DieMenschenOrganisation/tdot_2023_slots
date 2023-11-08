@@ -26,9 +26,10 @@ let canSplit = computed(args => {
 let wins = ref<boolean[]>([false, false]);
 let losses = ref<boolean[]>([false, false]);
 
-//todo
 const route = useRoute();
-console.log(route.query.test);
+
+let config = useRuntimeConfig();
+console.log(config.public.apiUrl);
 
 async function next(hand: number) {
   firstTurn.value = false;
@@ -124,7 +125,7 @@ async function onDouble(hand: number) {
 
   await next(hand)
 
-  if (running) {
+  if (running.value) {
     await sleep(2000)
     await check(hand)
   }
@@ -141,6 +142,9 @@ async function onSplit() {
   yourCards.value[1].push(card);
 
   yourTurn.value[1] = true;
+
+  await next(0);
+  await next(1);
 }
 
 async function onBet() {
@@ -175,7 +179,8 @@ async function onBet() {
       </button>
     </div>
     <div id="money">
-      money: {{ money }}
+      <div>Jetons</div>
+      <div>{{ money }}</div>
     </div>
     <div v-if="running" id="game">
       <div id="head">
@@ -189,10 +194,10 @@ async function onBet() {
             </div>
             <div id="buttons">
               <button @click="next(index)" :disabled="!yourTurn[index]">
-                next
+                hit
               </button>
               <button @click="check(index)" :disabled="!yourTurn[index]">
-                check
+                hold
               </button>
               <button @click="onDouble(index)" v-if="firstTurn" :disabled="!yourTurn[index] || !hasEnoughMoney">
                 double
@@ -208,7 +213,7 @@ async function onBet() {
     </div>
     <div v-else id="betting">
       <button @click="onBet" :disabled="!hasEnoughMoney">
-        bet
+        play
       </button>
       <BetSelect></BetSelect>
     </div>
@@ -301,8 +306,30 @@ async function onBet() {
 
 #money {
   position: absolute;
-  bottom: 5px;
+  top: 5px;
   right: 5px;
+
+  height: 50px;
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 20px;
+
+  background-color: #2c4557;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
+
+  transition: 0.1s ease-in-out;
+
+  margin: 20px;
+  padding: 10px;
+
+  color: #00adb5;
 }
 
 main {

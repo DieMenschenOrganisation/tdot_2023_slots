@@ -8,7 +8,7 @@ watch(props, () => {
 
   setTimeout(() => {
     pop.value = false
-  }, 200)
+  }, 900)
 })
 
 </script>
@@ -23,8 +23,12 @@ watch(props, () => {
 
 <style scoped lang="scss">
 
+div {
+  font-size: 50px;
+}
+
 .pop {
-  animation: 0.2s ease-in-out pop;
+  animation: 0.9s ease-in-out pop;
 }
 
 @keyframes pop {
@@ -33,8 +37,8 @@ watch(props, () => {
     scale: 1;
   }
   20% {
-    color: red;
     scale: 1.5;
+    filter: drop-shadow(0px 0px 5px #00adb5);
   }
   to {
     color: black;
