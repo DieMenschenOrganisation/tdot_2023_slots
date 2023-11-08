@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   css: ['~/public/css/buttons.scss'],
   runtimeConfig: {
     public: {
-      apiUrl: '94.16.122.175:8000',
+      apiUrl: 'http://94.16.122.175:8000',
     }
   },
 })

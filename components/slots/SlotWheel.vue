@@ -4,7 +4,7 @@ import {Wheel} from "~/utils/slots/Wheel";
 import {sleep} from "@antfu/utils";
 import {Selection} from "~/utils/slots/Selection";
 import ValueDisplay from "~/components/slots/ValueDisplay.vue";
-import {betMoney, changeMoney, hasEnoughMoney, money} from "~/stores/money";
+import {betMoney, changeMoney, hasEnoughMoney} from "~/stores/money";
 import BetSelect from "~/components/BetSelect.vue";
 
 const SLOTS_PER_REEL = 16;
@@ -284,11 +284,15 @@ main {
 
   :deep(button) {
     background-color: #222831;
+
+    &:disabled {
+      background-color: darken(#2c4557, 8%);
+    }
   }
 
   #input {
 
-    #spinButton{
+    #spinButton {
       display: flex;
       justify-content: center;
     }

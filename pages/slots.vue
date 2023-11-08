@@ -2,7 +2,9 @@
 
 import SlotWheel from "~/components/slots/SlotWheel.vue";
 import {onLeave} from "~/utils/Utils";
-import {money} from "~/stores/money";
+import {fetchMoney, money} from "~/stores/money";
+
+fetchMoney()
 </script>
 
 <template>
