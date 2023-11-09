@@ -10,6 +10,7 @@ let valIndex = 0;
 for (let i = values.length - 1; i >= 0; i--) {
   if (betMoney.value >= values[i]) {
     valIndex = i;
+    break
   }
 }
 
