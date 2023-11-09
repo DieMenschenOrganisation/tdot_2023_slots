@@ -7,4 +7,12 @@ export default defineNuxtConfig({
       apiUrl: 'https://backend.casino.schuelerprojekte.online/',
     }
   },
+  app:{
+    head:{
+      title:"Casino HTL",
+      link: [
+        { rel: "icon", type: "image/png", href: "/favicon.png" }
+      ]
+    }
+  }
 })
