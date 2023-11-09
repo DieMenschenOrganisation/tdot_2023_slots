@@ -44,7 +44,7 @@ async function spin() {
 
   let winningLanes = wheel.spin(state)
 
-  await sleep(5000 + 200 * selectedIndex.value.length);
+  await sleep(2000 + 200 * selectedIndex.value.length);
 
   for (let lane of winningLanes) {
 

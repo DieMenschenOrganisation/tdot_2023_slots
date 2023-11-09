@@ -31,7 +31,7 @@ export class Wheel {
 
     for (let i = 0; i < this.htmlRefs.length; i++) {
       this.htmlRefs[i].value!.animate([{transform: "rotateX(0)"}, {transform: transform}], {
-        duration: 5000,
+        duration: 2000,
         delay: 200 * i,
         iterations: 1,
         easing: "ease-out",
