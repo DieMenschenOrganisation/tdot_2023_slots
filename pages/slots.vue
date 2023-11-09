@@ -25,6 +25,8 @@ fetchMoney()
 <style scoped lang="scss">
 #leave {
   position: absolute;
+
+  z-index: 2000;
 }
 
 #money {
