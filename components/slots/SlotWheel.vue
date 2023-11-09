@@ -60,8 +60,8 @@ async function spin() {
         break;
       }
       case 5: {
-        winnings.value += currentBet * 10;
-        changeMoney(currentBet * 10)
+        winnings.value += currentBet * 8;
+        changeMoney(currentBet * 8)
       }
     }
 
