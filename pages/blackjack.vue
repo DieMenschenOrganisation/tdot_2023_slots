@@ -2,7 +2,7 @@
 
 import {Deck} from "~/utils/blackjack/deck";
 import {BlackJackCard, getMaxValidSum} from "~/utils/blackjack/blackJackCard";
-import Hand from "~/components/blackjack/hand.vue";
+import Hand from "~/components/blackjack/Hand.vue";
 import {betMoney, changeMoney, fetchMoney, hasEnoughMoney, money} from "~/stores/money";
 import {onLeave} from "~/utils/Utils";
 
