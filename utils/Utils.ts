@@ -1,3 +1,3 @@
 export function onLeave() {
-  window.location.replace("http://host.casino.schuelerprojekte.online/games");
+  window.location.replace("https://host.casino.schuelerprojekte.online/games");
 }
