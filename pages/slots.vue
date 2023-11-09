@@ -3,8 +3,10 @@
 import SlotWheel from "~/components/slots/SlotWheel.vue";
 import {onLeave} from "~/utils/Utils";
 import {fetchMoney, money} from "~/stores/money";
+import {prefetchJetons} from "~/utils/Fetcher";
 
 fetchMoney()
+prefetchJetons()
 </script>
 
 <template>

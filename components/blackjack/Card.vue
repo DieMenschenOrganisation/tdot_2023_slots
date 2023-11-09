@@ -9,7 +9,7 @@ let props = defineProps<{ card: BlackJackCard }>()
 <template>
   <div id="main">
     <img v-if="!props.card.back"
-         :src="'/cards/' + cardValues[props.card.value] +  '-' + cardColors[props.card.color] + '.png'" alt="">
+         :src="`/cards/${cardValues[props.card.value]}-${cardColors[props.card.color]}.png`" alt="">
     <img v-else :src="'/cards/back.png'" alt="">
     <div id="shadow"></div>
   </div>
