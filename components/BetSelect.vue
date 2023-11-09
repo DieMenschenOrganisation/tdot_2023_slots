@@ -8,7 +8,7 @@ const values = [1, 5, 10, 25, 50, 100, 500];
 let valIndex = 0;
 
 for (let i = values.length - 1; i >= 0; i--) {
-  if (betMoney.value <= values[i]) {
+  if (betMoney.value >= values[i]) {
     valIndex = i;
   }
 }

@@ -49,9 +49,11 @@ async function loss(hand: number) {
 async function win(hand: number, winMulti: number) {
   wins.value[hand] = true;
   yourTurn.value[hand] = false;
+  betMoney.value *= winMulti;
   await sleep(1000);
 
-  changeMoney(betMoney.value * winMulti)
+  changeMoney(betMoney.value)
+  betMoney.value /= winMulti;
 }
 
 function reset() {
